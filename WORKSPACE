@@ -122,7 +122,10 @@ load("@rules_oci//oci:pull.bzl", "oci_pull")
 oci_pull(
     name = "debian",
     image = "index.docker.io/library/debian",
-    platforms = ["linux/amd64"],
+    platforms = [
+        "linux/amd64",
+        "linux/arm64",
+    ],
     reproducible = False,
     tag = "latest",
 )
