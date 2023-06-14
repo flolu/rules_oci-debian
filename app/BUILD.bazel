@@ -1,7 +1,7 @@
 load("@aspect_rules_js//js:defs.bzl", "js_binary", "js_image_layer")
 load("@rules_oci//oci:defs.bzl", "oci_image", "oci_tarball")
-load("@aspect_bazel_lib//lib:transitions.bzl", "platform_transition_filegroup")
 load("@aspect_rules_ts//ts:defs.bzl", "ts_project")
+load("@aspect_bazel_lib//lib:transitions.bzl", "platform_transition_filegroup")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -25,35 +25,43 @@ js_image_layer(
     visibility = ["//visibility:__pkg__"],
 )
 
+oci_image(
+    name = "image",
+    base = "@debian",
+    cmd = ["/app/app/main"],
+    entrypoint = ["bash"],
+    tars = [":layers"],
+    visibility = ["//visibility:public"],
+)
+
 platform(
-    name = "amd64_linux",
+    name = "linux_amd64",
     constraint_values = [
         "@platforms//os:linux",
         "@platforms//cpu:x86_64",
     ],
 )
 
-platform_transition_filegroup(
-    name = "transitioned_layers",
-    srcs = [":layers"],
-    target_platform = ":amd64_linux",
+platform(
+    name = "linux_arm64",
+    constraint_values = [
+        "@platforms//os:linux",
+        "@platforms//cpu:arm64",
+    ],
 )
 
-oci_image(
-    name = "image",
-    architecture = "amd64",
-    # base = "@debian//:image",
-    base = "@debian",
-    cmd = ["/app/app/main"],
-    entrypoint = ["bash"],
-    os = "linux",
-    tars = [":transitioned_layers"],
-    visibility = ["//visibility:public"],
+platform_transition_filegroup(
+    name = "transitioned_image",
+    srcs = [":image"],
+    target_platform = select({
+        "@platforms//cpu:arm64": ":linux_arm64",
+        "@platforms//cpu:x86_64": ":linux_amd64",
+    }),
 )
 
 oci_tarball(
     name = "image_tar",
-    image = ":image",
-    repotags = ["rules_oci_debian_repro:latest"],
+    image = ":transitioned_image",
+    repo_tags = ["rules_oci_debian_repro:latest"],
     visibility = ["//visibility:public"],
 )

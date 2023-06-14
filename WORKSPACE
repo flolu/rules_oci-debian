@@ -19,10 +19,9 @@ http_archive(
 ###
 http_archive(
     name = "aspect_rules_js",
-    sha256 = "371c34ae25d72ed4e9c72bd646ed88697ea89d0012ea5ed1860d4804f4dd7056",
-    # https://github.com/aspect-build/rules_js/issues/971#issuecomment-1491259017
-    strip_prefix = "rules_js-002397780d51735f1a98b362fca7018df31e85ac",
-    urls = ["https://github.com/aspect-build/rules_js/archive/002397780d51735f1a98b362fca7018df31e85ac.tar.gz"],
+    sha256 = "2a88d837f8fb7bfe46b1d9f413df9a777ec2973e1f812929b597c1971a3a1da5",
+    strip_prefix = "rules_js-1.28.0",
+    url = "https://github.com/aspect-build/rules_js/releases/download/v1.28.0/rules_js-v1.28.0.tar.gz",
 )
 
 load("@aspect_rules_js//js:repositories.bzl", "rules_js_dependencies")
@@ -58,9 +57,9 @@ npm_repositories()
 ###
 http_archive(
     name = "aspect_rules_ts",
-    sha256 = "8eb25d1fdafc0836f5778d33fb8eaac37c64176481d67872b54b0a05de5be5c0",
-    strip_prefix = "rules_ts-1.3.3",
-    url = "https://github.com/aspect-build/rules_ts/releases/download/v1.3.3/rules_ts-v1.3.3.tar.gz",
+    sha256 = "40ab6d3d9cc3259da54fe2f162588aba92244af0f151fbc905dcc8e7b8744296",
+    strip_prefix = "rules_ts-1.4.2",
+    url = "https://github.com/aspect-build/rules_ts/releases/download/v1.4.2/rules_ts-v1.4.2.tar.gz",
 )
 
 load("@aspect_rules_ts//ts:repositories.bzl", "rules_ts_dependencies")
@@ -73,8 +72,11 @@ rules_ts_dependencies(ts_version_from = "//:package.json")
 ###
 http_archive(
     name = "rules_pkg",
-    sha256 = "8c20f74bca25d2d442b327ae26768c02cf3c99e93fad0381f32be9aab1967675",
-    urls = ["https://github.com/bazelbuild/rules_pkg/releases/download/0.8.1/rules_pkg-0.8.1.tar.gz"],
+    sha256 = "8f9ee2dc10c1ae514ee599a8b42ed99fa262b757058f65ad3c384289ff70c4b8",
+    urls = [
+        "https://mirror.bazel.build/github.com/bazelbuild/rules_pkg/releases/download/0.9.1/rules_pkg-0.9.1.tar.gz",
+        "https://github.com/bazelbuild/rules_pkg/releases/download/0.9.1/rules_pkg-0.9.1.tar.gz",
+    ],
 )
 
 load("@rules_pkg//:deps.bzl", "rules_pkg_dependencies")
@@ -87,9 +89,9 @@ rules_pkg_dependencies()
 ###
 http_archive(
     name = "rules_oci",
-    sha256 = "f6125c9a123a2ac58fb6b13b4b8d4631827db9cfac025f434bbbefbd97953f7c",
-    strip_prefix = "rules_oci-0.3.9",
-    url = "https://github.com/bazel-contrib/rules_oci/releases/download/v0.3.9/rules_oci-v0.3.9.tar.gz",
+    sha256 = "db57efd706f01eb3ce771468366baa1614b5b25f4cce99757e2b8d942155b8ec",
+    strip_prefix = "rules_oci-1.0.0",
+    url = "https://github.com/bazel-contrib/rules_oci/releases/download/v1.0.0/rules_oci-v1.0.0.tar.gz",
 )
 
 load("@rules_oci//oci:dependencies.bzl", "rules_oci_dependencies")
@@ -103,30 +105,20 @@ oci_register_toolchains(
     crane_version = LATEST_CRANE_VERSION,
 )
 
-###
-# WORKS FINE
-###
-# load(":pull.bzl", "oci_pull")
-# oci_pull(
-#     name = "debian",
-#     architecture = "amd64",
-#     image = "thesayyn/debian:oci",
-# )
-###
-
-###
-# DOESN'T WORK
-###
 load("@rules_oci//oci:pull.bzl", "oci_pull")
 
 oci_pull(
     name = "debian",
-    image = "index.docker.io/library/debian",
+    digest = "sha256:432f545c6ba13b79e2681f4cc4858788b0ab099fc1cca799cc0fae4687c69070",
+    image = "debian",
     platforms = [
+        "linux/386",
         "linux/amd64",
-        "linux/arm64",
+        "linux/arm/v5",
+        "linux/arm/v7",
+        "linux/arm64/v8",
+        "linux/mips64le",
+        "linux/ppc64le",
+        "linux/s390x",
     ],
-    reproducible = False,
-    tag = "latest",
 )
-###
